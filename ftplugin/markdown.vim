@@ -783,13 +783,19 @@ else
     \ }
 endif
 
+
 function! s:MarkdownHighlightSources(force)
     " Syntax highlight source code embedded in notes.
     " Look for code blocks in the current file
     let filetypes = {}
     for line in getline(1, '$')
-        let ft = matchstr(line, '```\s*\zs[0-9A-Za-z_+-]*\ze.*')
-        if !empty(ft) && ft !~ '^\d*$' | let filetypes[ft] = 1 | endif
+        let ft = matchstr(line, '```\s*\zs[{}0-9A-Za-z_+-]*\ze.*')
+        if !empty(ft) && ft !~ '^\d*$'
+            " Make sure braces are closed to avoid errors
+            if (ft =~ '{' && ft =~ '}') || (ft !~ '{' && ft !~ '}')
+                let filetypes[ft] = 1
+            endif
+        endif
     endfor
     if !exists('b:mkd_known_filetypes')
         let b:mkd_known_filetypes = {}
